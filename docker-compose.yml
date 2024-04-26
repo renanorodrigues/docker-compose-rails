@@ -1,5 +1,4 @@
-
-version: '3.0'
+version: '3.8'
 
 services:
   web:
@@ -8,9 +7,6 @@ services:
       - 3000:3000
     volumes:
       - .:/app
-    links:
-      - 'db:db'
-      - 'redis:redis'
     depends_on:
       - db
       - redis
@@ -18,7 +14,9 @@ services:
       DB_HOST: db
 
   db:
-    image: postgres:12.3-alpine
+    image: postgres:13
+    ports:
+      - 5432:5432
     environment:
       POSTGRES_PASSWORD: 'postgres'
     volumes:
