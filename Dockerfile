@@ -2,9 +2,22 @@ FROM ruby:3.1.4 AS base
 
 ENV INSTALL_PATH /app
 
-RUN apt-get update -qq && apt-get install -y build-essential apt-utils libpq-dev nodejs
+RUN apt-get update -qq && \
+    apt-get install --no-install-recommends -y build-essential curl git libpq-dev libvips node-gyp pkg-config python-is-python3
+
+ARG NODE_VERSION=18.19.0
+ARG YARN_VERSION=latest
+ENV PATH=/usr/local/node/bin:$PATH
+RUN curl -sL https://github.com/nodenv/node-build/archive/master.tar.gz | tar xz -C /tmp/ && \
+    /tmp/node-build-master/bin/node-build "${NODE_VERSION}" /usr/local/node && \
+    npm install -g yarn@$YARN_VERSION && \
+    rm -rf /tmp/node-build-master
 
 COPY Gemfile Gemfile.lock ./
+
+COPY package.json yarn.lock ./
+
+RUN yarn install --frozen-lockfile
 
 RUN bundle check || bundle install 
 
